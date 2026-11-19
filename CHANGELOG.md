@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Read the update source from `CapcapUpdateRepo`, injected at bundle time, so a build only updates from the repository it was built from; the About links and issue shortcuts follow the same value
+- Document `CAPCAP_UPDATE_REPO` as the override for the injected update source
+
 ## [1.7.25] - 2026-11-09
 
 ### Changed

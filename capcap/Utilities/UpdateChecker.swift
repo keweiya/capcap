@@ -37,7 +37,33 @@ extension Notification.Name {
 final class UpdateChecker {
     static let shared = UpdateChecker()
 
-    private let repo = "realskyrin/capcap"
+    /// Repository used when a build carries no update-source metadata.
+    static let defaultRepository = "realskyrin/capcap"
+
+    /// Repository this build checks for updates. The packaging scripts inject
+    /// `CapcapUpdateRepo` into Info.plist from the CI repository (or the git
+    /// origin remote for local builds), so a fork build updates from that fork
+    /// instead of pulling a different project's binaries.
+    static var repository: String {
+        guard let raw = Bundle.main.infoDictionary?["CapcapUpdateRepo"] as? String else {
+            return defaultRepository
+        }
+        let slug = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parts = slug.split(separator: "/", omittingEmptySubsequences: true)
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-")
+        guard parts.count == 2,
+              parts.allSatisfy({ !$0.isEmpty && $0.unicodeScalars.allSatisfy(allowed.contains) })
+        else { return defaultRepository }
+        return slug
+    }
+
+    /// Web page of the repository this build updates from.
+    static var repositoryURL: URL {
+        URL(string: "https://github.com/\(repository)")
+            ?? URL(string: "https://github.com/\(defaultRepository)")!
+    }
+
+    private var repo: String { Self.repository }
     private let throttleKey = "lastUpdateCheckAt"
     private let skippedVersionKey = "skippedUpdateVersion"
     private let shortcutTriggerDayKey = "automaticUpdateCheckShortcutTriggerDay"

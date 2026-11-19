@@ -2105,7 +2105,7 @@ class SettingsView: NSView {
 
         let repo = makeLinkRow(
             title: L10n.aboutSourceCode,
-            value: "github.com/realskyrin/capcap",
+            value: "github.com/\(UpdateChecker.repository)",
             action: #selector(openSourceRepo)
         )
         aboutSourceTitleLabel = repo.title
@@ -2511,25 +2511,23 @@ class SettingsView: NSView {
     }
 
     @objc private func openSourceRepo() {
-        if let url = URL(string: "https://github.com/realskyrin/capcap") {
-            NSWorkspace.shared.open(url)
-        }
+        NSWorkspace.shared.open(UpdateChecker.repositoryURL)
     }
 
     @objc private func openStarOnGitHub() {
-        if let url = URL(string: "https://github.com/realskyrin/capcap") {
-            NSWorkspace.shared.open(url)
-        }
+        NSWorkspace.shared.open(UpdateChecker.repositoryURL)
     }
 
     @objc private func openFeatureRequest() {
-        if let url = URL(string: "https://github.com/realskyrin/capcap/issues/new?template=feature_request.yml") {
+        let base = UpdateChecker.repositoryURL.absoluteString
+        if let url = URL(string: "\(base)/issues/new?template=feature_request.yml") {
             NSWorkspace.shared.open(url)
         }
     }
 
     @objc private func openBugReport() {
-        if let url = URL(string: "https://github.com/realskyrin/capcap/issues/new?template=bug_report.yml") {
+        let base = UpdateChecker.repositoryURL.absoluteString
+        if let url = URL(string: "\(base)/issues/new?template=bug_report.yml") {
             NSWorkspace.shared.open(url)
         }
     }

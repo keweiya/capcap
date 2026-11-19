@@ -25,3 +25,30 @@ if ! /usr/libexec/PlistBuddy -c "Set :CapcapGitCommit $BUILD_COMMIT" "$INFO_PLIS
 fi
 
 echo "Injected Git build commit: $BUILD_COMMIT"
+
+# ---------------------------------------------------------------
+# Update source
+# ---------------------------------------------------------------
+# A build should only ever update itself from the repository it was built
+# from. Upstream CI sets GITHUB_REPOSITORY, so every fork build automatically
+# points at that fork; local builds fall back to the origin remote, then to the
+# upstream project.
+UPDATE_REPO="${CAPCAP_UPDATE_REPO:-${GITHUB_REPOSITORY:-}}"
+if [ -z "$UPDATE_REPO" ]; then
+    ORIGIN_URL="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
+    case "$ORIGIN_URL" in
+        *github.com[:/]*)
+            UPDATE_REPO="${ORIGIN_URL#*github.com}"
+            UPDATE_REPO="${UPDATE_REPO#:}"
+            UPDATE_REPO="${UPDATE_REPO#/}"
+            UPDATE_REPO="${UPDATE_REPO%.git}"
+            ;;
+    esac
+fi
+if [[ ! "$UPDATE_REPO" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+    UPDATE_REPO="realskyrin/capcap"
+fi
+if ! /usr/libexec/PlistBuddy -c "Set :CapcapUpdateRepo $UPDATE_REPO" "$INFO_PLIST" 2>/dev/null; then
+    /usr/libexec/PlistBuddy -c "Add :CapcapUpdateRepo string $UPDATE_REPO" "$INFO_PLIST"
+fi
+echo "Injected update repository: $UPDATE_REPO"
