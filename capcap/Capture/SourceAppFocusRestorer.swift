@@ -29,7 +29,14 @@ final class SourceAppFocusRestorer {
                 return
             }
 
-            app.activate(options: [.activateAllWindows])
+            // Only the app's main and key windows are brought forward here.
+            // Adding .activateAllWindows also drags every window of that app —
+            // including windows on other displays and in other Spaces — to the
+            // front, which re-stacks the whole app above whatever the user had
+            // on a screen that was never captured (issue #230). Losing an
+            // inactive app's side-by-side arrangement is not an acceptable
+            // price for restoring focus.
+            app.activate(options: [])
         }
     }
 }
